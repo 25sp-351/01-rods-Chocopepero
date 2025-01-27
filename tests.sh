@@ -36,7 +36,14 @@ Value: 25"
     "6" "3,10" "2 @ 3 = 20
 Remainder: 0
 Value: 20"
-)
+
+    "10" "1,3
+2,1
+3,2"
+"10 @ 1 = 30
+Remainder: 0
+Value: 30"
+
 
 total_tests=${#tests[@]}
 total_tests=$((total_tests / 3))
