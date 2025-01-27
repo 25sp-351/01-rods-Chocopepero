@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX(left, right) (((left) > (right)) ? (left) : (right))
+#define max(left, right) (((left) > (right)) ? (left) : (right))
 
 struct piece {
     int length;
@@ -22,9 +22,10 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Usage: %s <length>\n", argv[0]);
         return 1;
     }
-    char* endptr;
-    int supplied_length = strtol(argv[1], &endptr, 10);
-    char buffer[100];
+
+    const char* endptr;
+    const int supplied_length = strtol(argv[1], &endptr, 10);
+    const char buffer[100];
 
     if (*endptr != '\0' || supplied_length <= 0) {
         fprintf(stderr, "Invalid rod length: %s\n", argv[1]);
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]) {
             if (piece_value[val_index].length <= curr_length) {
                 int temp              = dp_table[curr_length];
 
-                dp_table[curr_length] = MAX(
+                dp_table[curr_length] = max(
                     dp_table[curr_length],
                     piece_value[val_index].value +
                         dp_table[curr_length - piece_value[val_index].length]);
@@ -70,16 +71,16 @@ int main(int argc, char* argv[]) {
             }
         }
     }
-    int supp_length_rem = supplied_length;
-    while (cuts[supp_length_rem] != -1) {
-        int len_to_cut       = cuts[supplied_length];
+    int supp_length_remainder = supplied_length;
+    while (cuts[supp_length_remainder] != -1) {
+        int len_to_cut = cuts[supplied_length];
         for (int pv_index = 0; pv_index < count; pv_index++) {
             if (piece_value[pv_index].length == len_to_cut) {
                 piece_value[pv_index].use_count++;
                 break;
             }
         }
-        supp_length_rem -= len_to_cut;
+        supp_length_remainder -= len_to_cut;
     }
 
     for (int i = 0; i < count; i++) {
@@ -89,7 +90,7 @@ int main(int argc, char* argv[]) {
                    piece_value[i].use_count * piece_value[i].value);
         }
     }
-    printf("Remainer: %d\n", supp_length_rem);
+    printf("Remainder: %d\n", supp_length_remainder);
     printf("Value: %d\n", dp_table[supplied_length]);
 
     free(piece_value);
