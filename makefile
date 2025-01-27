@@ -29,3 +29,7 @@ format:
 # Clean Build Files
 clean:
 	rm -f $(OBJS) $(EXEC)
+
+# Run Tests
+test: $(EXEC)
+	./tests.sh
