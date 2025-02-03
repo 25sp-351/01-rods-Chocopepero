@@ -7,7 +7,7 @@ FORMAT = clang-format
 FORMAT_FLAGS = -i
 
 # Source Files
-SRCS = main.c
+SRCS = main.c vec.c
 OBJS = $(SRCS:.c=.o)
 EXEC = main
 
