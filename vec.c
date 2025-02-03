@@ -1,8 +1,9 @@
 #include "vec.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+
 
 #define SIZE_INCREMENT 20
 // typedef struct vec {
@@ -58,9 +59,13 @@ void* vec_items(Vec v) {
 }
 
 void* vec_at(Vec v, size_t index) {
+    if (v == NULL) {
+        fprintf(stderr, "Vector is NULL\n");
+        exit(EXIT_FAILURE);
+    }
     if (index >= v->length) {
         fprintf(stderr, "Index out of bounds\n");
         exit(EXIT_FAILURE);
     }
-    return (char*)v->base + index * v->element_size;
+    return (vec_items(v) + (index * v->element_size));
 }

@@ -7,7 +7,7 @@ FORMAT = clang-format
 FORMAT_FLAGS = -i
 
 # Source Files
-SRCS = main.c vec.c
+SRCS = main.c vec.c piece_values.c
 OBJS = $(SRCS:.c=.o)
 EXEC = main
 
@@ -28,8 +28,9 @@ format:
 
 # Clean Build Files
 clean:
-	rm -f $(OBJS) $(EXEC)
+	rm -f $(OBJS) $(EXEC) main.pdb main.ilk
 
 # Run Tests
 test: $(EXEC)
-	./tests.sh
+	bash ./tests.sh
+	

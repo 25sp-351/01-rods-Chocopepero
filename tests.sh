@@ -15,18 +15,20 @@ fi
 
 # Using "\n" caused problems with comparison, so use literal line breaks instead.
 tests=(
+# Basic test
    "1" "1,5" "1 @ 1 = 5
 Remainder: 0
 Value: 5"
-
+# Test with remainder
     "5" "10,50" "Remainder: 5
 Value: 0"
+# Test with duplicate piece values
     "10" "2,4
 2,4
 2,4" "5 @ 2 = 20
 Remainder: 0
 Value: 20"
-
+#
     "10" "1,1
 2,5
 5,12" "5 @ 2 = 25
@@ -43,7 +45,7 @@ Value: 20"
 "10 @ 1 = 30
 Remainder: 0
 Value: 30"
-
+)
 
 total_tests=${#tests[@]}
 total_tests=$((total_tests / 3))
