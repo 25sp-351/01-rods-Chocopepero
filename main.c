@@ -2,18 +2,38 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define max(left, right) (((left) > (right)) ? (left) : (right))
+#include "vec.h"
 
-struct piece {
+#define BUFFER_SIZE 100
+#define BASE_10 10
+#define MAX(left, right) (((left) > (right)) ? (left) : (right))
+
+typedef struct {
     int length;
     int value;
     int use_count;
-};
+} piece;
 
-int compare(const void* left, const void* right) {
-    struct piece* pieceL = (struct piece*)left;
-    struct piece* pieceR = (struct piece*)right;
+inline piece* piece_at(Vec vec, size_t index) {
+    return (piece*)vec_at(vec, index);
+}
+
+int compare_piecelen(const void* left, const void* right) {
+    piece* pieceL = (piece*)left;
+    piece* pieceR = (piece*)right;
     return pieceL->length - pieceR->length;
+}
+
+Vec read_input() {
+    Vec piece_value = new_vec(sizeof(piece));
+    int length;
+    int value;
+
+    while (scanf("%d, %d", &length, &value) == 2) {
+        piece new_piece = {length, value, 0};
+        vec_add(piece_value, &new_piece);
+    }
+    return piece_value;
 }
 
 int main(int argc, char* argv[]) {
@@ -22,34 +42,19 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Usage: %s <length>\n", argv[0]);
         return 1;
     }
-
-    const char* endptr;
-    const int supplied_length = strtol(argv[1], &endptr, 10);
-    const char buffer[100];
+    char* endptr;
+    int supplied_length = strtol(argv[1], &endptr, BASE_10);
+    char buffer[BUFFER_SIZE];
 
     if (*endptr != '\0' || supplied_length <= 0) {
         fprintf(stderr, "Invalid rod length: %s\n", argv[1]);
         return 1;
     }
 
-    // Making a pseudo-vector (Thank you 131)
-    struct piece* piece_value;
-    int capacity = 5;
-    int count    = 0;
-    piece_value  = malloc(capacity * sizeof(struct piece));
+    Vec piece_value = read_input();
+    size_t pv_size  = vec_length(piece_value);
 
-    while (fgets(buffer, sizeof(buffer), stdin)) {
-        if (count >= capacity) {
-            capacity *= 2;
-            piece_value = realloc(piece_value, capacity * sizeof(struct piece));
-        }
-        sscanf(buffer, "%d, %d", &piece_value[count].length,
-               &piece_value[count].value);
-        piece_value[count].use_count = 0;
-        count++;
-    }
-
-    qsort(piece_value, count, sizeof(struct piece), compare);
+    qsort(piece_value, pv_size, sizeof(piece), compare_piecelen);
 
     int* dp_table = malloc((supplied_length + 1) * sizeof(int));
     int* cuts     = malloc((supplied_length + 1) * sizeof(int));
@@ -57,43 +62,45 @@ int main(int argc, char* argv[]) {
     memset(dp_table, 0, (supplied_length + 1) * sizeof(int));
     memset(cuts, -1, (supplied_length + 1) * sizeof(int));
 
-    for (int curr_length = 1; curr_length <= supplied_length; curr_length++) {
-        for (int val_index = 0; val_index < count; val_index++) {
-            if (piece_value[val_index].length <= curr_length) {
-                int temp              = dp_table[curr_length];
+    for (int curr_length = 1; curr_length <= supplied_length; curr_length++)
+        for (int val_index = 0; val_index < pv_size; val_index++) {
+            if (piece_at(piece_value, val_index)->length <= curr_length) {
+                int temp = dp_table[curr_length];
 
-                dp_table[curr_length] = max(
-                    dp_table[curr_length],
-                    piece_value[val_index].value +
-                        dp_table[curr_length - piece_value[val_index].length]);
+                dp_table[curr_length] =
+                    MAX(dp_table[curr_length],
+                        piece_at(piece_value, val_index)->value +
+                            dp_table[curr_length -
+                                     piece_at(piece_value, val_index)->length]);
                 if (temp != dp_table[curr_length])
-                    cuts[curr_length] = piece_value[val_index].length;
+                    cuts[curr_length] =
+                        piece_at(piece_value, val_index)->length;
             }
         }
-    }
-    int supp_length_remainder = supplied_length;
-    while (cuts[supp_length_remainder] != -1) {
+    int supp_length_rem = supplied_length;
+    while (cuts[supp_length_rem] != -1) {
         int len_to_cut = cuts[supplied_length];
-        for (int pv_index = 0; pv_index < count; pv_index++) {
-            if (piece_value[pv_index].length == len_to_cut) {
-                piece_value[pv_index].use_count++;
+        for (int pv_index = 0; pv_index < pv_size; pv_index++) {
+            if (piece_at(piece_value, pv_index)->length == len_to_cut) {
+                piece_at(piece_value, pv_index)->use_count++;
                 break;
             }
         }
-        supp_length_remainder -= len_to_cut;
+        supp_length_rem -= len_to_cut;
     }
 
-    for (int i = 0; i < count; i++) {
-        if (piece_value[i].use_count > 0) {
-            printf("%d @ %d = %d\n", piece_value[i].use_count,
-                   piece_value[i].length,
-                   piece_value[i].use_count * piece_value[i].value);
+    for (int index = 0; index < pv_size; index++) {
+        if (piece_at(piece_value, index)->use_count > 0) {
+            printf("%d @ %d = %d\n", piece_at(piece_value, index)->use_count,
+                   piece_at(piece_value, index)->length,
+                   piece_at(piece_value, index)->use_count *
+                       piece_at(piece_value, index)->value);
         }
     }
-    printf("Remainder: %d\n", supp_length_remainder);
+    printf("Remainder: %d\n", supp_length_rem);
     printf("Value: %d\n", dp_table[supplied_length]);
 
-    free(piece_value);
+    vec_free(piece_value);
     free(dp_table);
     free(cuts);
 
