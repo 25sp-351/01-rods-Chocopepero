@@ -7,11 +7,11 @@
 #include "vec.h"
 
 bool _list_contains_length(Vec ptr, PieceLength len);
-// by value then length, both descending
+// by value then length, both ascending
 int compare_piece_values(PieceLengthValue *a, PieceLengthValue *b) {
     if (a->value != b->value)
-        return b->value - a->value;
-    return b->length - a->length;
+        return a->value - b->value;
+    return a->length - b->length;
 }
 Vec read_piece_values() {
     Vec val_list = new_vec(sizeof(PieceLengthValue));

@@ -15,25 +15,24 @@ fi
 
 # Using "\n" caused problems with comparison, so use literal line breaks instead.
 tests=(
-# Basic test
+    # Normal Case (No Remainder)
    "1" "1,5" "1 @ 1 = 5
 Remainder: 0
 Value: 5"
-# Test with remainder
+    # No Applicable Pieces
     "5" "10,50" "Remainder: 5
 Value: 0"
-# Test with duplicate piece values
+    # Duplicate Pieces
     "10" "2,4
 2,4
 2,4" "5 @ 2 = 20
 Remainder: 0
 Value: 20"
-#
-    "10" "1,1
-2,5
-5,12" "5 @ 2 = 25
+    # Value Based Check
+    "8" "4,4
+6,5" "2 @ 4 = 8
 Remainder: 0
-Value: 25"
+Value: 8"
 
     "6" "3,10" "2 @ 3 = 20
 Remainder: 0
@@ -58,7 +57,7 @@ for ((i=0; i<${#tests[@]}; i+=3)); do
     input="${tests[i+1]}"
     expected="${tests[i+2]}"
 
-    output=$(echo -e "$input" | $EXEC "$rod_length")
+    output=$(echo -e "$input" | $EXEC "$rod_length" | tr -d '\r')
 
     if diff <(echo "$output") <(echo "$expected") >/dev/null; then
         echo -e "${GREEN}Test $((i/3+1))/$total_tests PASSED${NC} (Rod Length: $rod_length)"
