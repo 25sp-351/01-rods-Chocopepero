@@ -17,7 +17,7 @@ Vec read_piece_values() {
     Vec val_list = new_vec(sizeof(PieceLengthValue));
     while (!feof(stdin)) {
         PieceLengthValue item;
-        if (2 != fscanf_s(stdin, "%d, %d\n", &item.length, &item.value) ||
+        if (2 != fscanf(stdin, "%d, %d\n", &item.length, &item.value) ||
             item.length < 1 || item.value < 1 ||
             _list_contains_length(val_list, item.length)) {
             vec_free(val_list);
